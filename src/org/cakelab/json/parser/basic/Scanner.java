@@ -1,4 +1,4 @@
-package org.cakelab.json.codec;
+package org.cakelab.json.parser.basic;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ public class Scanner {
 	
 	private String name;
 	private Object value;
-	private long int_value;
+	private long long_value;
 	
 	public Scanner(Reader reader) throws IOException {
 		this.reader = reader;
@@ -37,15 +37,11 @@ public class Scanner {
 		this(new InputStreamReader(in, charset));
 	}
 	
-	public Scanner (InputStream in) throws IOException {
-		this(in, Charset.defaultCharset());
-		
-	}
-	
 	public Scanner(String jsonString) throws IOException {
 		this(new StringReader(jsonString));
 	}
 
+	
 	public int next() throws IOException {
 		char c = readCharacterSkipWhitespace();
 		return c;
@@ -154,8 +150,8 @@ public class Scanner {
 		}
 		try {
 			try {
-				int_value = Long.parseLong(s.toString());
-				value = int_value;
+				long_value = Long.parseLong(s.toString());
+				value = long_value;
 			} catch (NumberFormatException e) {
 				double_value = Double.parseDouble(s.toString());
 				value = double_value;
@@ -238,13 +234,13 @@ public class Scanner {
 
 	private char readUnicodeControlSequence() throws IOException, JSONException {
 		int hex = readHexDigits(4);
-
-		// casting unicode value to char is said to be the right conversion
+		// Casting unicode value to char works because Unicode code points equal 
+		// their character value in UCS2 (JVM character encoding).
 		return (char)hex;
 	}
 
 	private int readHexDigits(int amount) throws IOException, JSONException {
-		int radix = 16;
+		final int radix = 16;
 		int hex = 0;
 		for (int i = 0; i < amount; i++) {
 			if (!Token.isHexDigit((char)lookahead)) error("Unexpected character in unicode control sequence");
